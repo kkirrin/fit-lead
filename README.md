@@ -92,6 +92,7 @@ docker run -d -p 27017:27017 --name db-fit-lead mongo
 cd backend
 
 npm install
+
 npm run data:import
 
     
@@ -114,7 +115,9 @@ npm run dev
 Установка зависимостей и запуск:
       
 cd frontend
+
 npm install
+
 npm run dev
 
     
