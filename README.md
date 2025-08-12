@@ -58,10 +58,6 @@ Backend
 1. Подготовка
 
 Клонирование репозитория:
-code Bash
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-
       
 git clone https://github.com/kkirrin/fit-lead.git
 cd fit-lead
@@ -70,10 +66,6 @@ cd fit-lead
 
 Настройка переменных окружения:
 Создайте файл .env в корне проекта, скопировав содержимое из файла-шаблона .env.example:
-code Bash
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-
       
 cp .env.example .env
 
@@ -83,10 +75,6 @@ cp .env.example .env
 2. Запуск Базы Данных (MongoDB)
 
 Запустите контейнер MongoDB с помощью Docker:
-code Bash
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-
       
 docker run -d -p 27017:27017 --name db-fit-lead mongo
 
@@ -98,10 +86,6 @@ docker run -d -p 27017:27017 --name db-fit-lead mongo
 Откройте первый терминал в корне проекта.
 
 Установка зависимостей и наполнение базы:
-code Bash
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-
       
 cd backend
 
@@ -125,10 +109,6 @@ npm run dev
 Откройте второй, отдельный терминал в корне проекта.
 
 Установка зависимостей и запуск:
-code Bash
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-
       
 cd frontend
 npm install
@@ -148,11 +128,6 @@ npm run dev
 
     Чтобы остановить и удалить контейнер с базой данных, выполните:
 
-code Bash
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-
-      
 docker stop db-fit-lead
 docker rm db-fit-lead
 
