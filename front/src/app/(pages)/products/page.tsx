@@ -1,12 +1,14 @@
 'use client'; 
 
 import { useEffect, useState } from 'react';
-import api from '@/lib/api';
 import Link from 'next/link';
+import api from '@/lib/api';
+import ProductCard from '@/app/components/ProductCard';
 
-interface IProduct {
+export interface IProduct {
     _id: string;
     title: string;
+    description: string;
     category: string;
     price: number;
     commissionPercent: number;
@@ -15,88 +17,41 @@ interface IProduct {
     originalUrl: string;
 }
 
+const CATEGORIES = ['спортпит', 'оборудование', 'одежда', 'гаджеты'];
+
 export default function ProductsPage() {
+
     const [products, setProducts] = useState<IProduct[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState('createdAt');
+    const [order, setOrder] = useState('desc');
+    const [selectedCategory, setSelectedCategory] = useState('all');
+
     const [editingProduct, setEditingProduct] = useState<IProduct | null>(null);
     const [editFormData, setEditFormData] = useState({
-    title: '',
+        title: '',
+        description: '',
         category: 'спортпит',
         price: '',
         commissionPercent: '',
         originalUrl: '' 
     });
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('createdAt');
-    const [order, setOrder] = useState('desc');
-
-    const startEditing = (product: IProduct) => {
-        setEditingProduct(product);
-        setEditFormData({
-            title: product.title,
-            category: product.category,
-            price: String(product.price),
-            commissionPercent: String(product.commissionPercent),
-            originalUrl: product.originalUrl
-        });
-    };
-
-    const cancelEditing = () => {
-        setEditingProduct(null);
-    }
-
-    const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setEditFormData({
-            ...editFormData,
-            [e.target.name]: e.target.value
-        })
-    }
-
-    const handleUpdate = async (productId: string) => {
-        try {
-            const updatedData = {
-                ...editFormData,
-                price: Number(editFormData.price),
-                commissionPercent: Number(editFormData.commissionPercent)
-            };
-            await api.put(`/products/${productId}`, updatedData);
-            
-            // Обновляем состояние на клиенте без повторного запроса к API
-            setProducts(products.map(p => 
-                p._id === productId ? { ...p, ...updatedData } : p
-            ));
-            
-            cancelEditing();
-        } catch (err) {
-            setError('Не удалось обновить товар');
-            console.error(err);
-        }
-    };
-
-    const handleDelete = async (productId: string) => {
-        if (window.confirm('Вы уверены, что хотите удалить этот товар?')) {
-            try {
-                await api.delete(`/products/${productId}`);
-                // Удаляем товар из состояния на клиенте
-                setProducts(products.filter(p => p._id !== productId));
-            } catch (err) {
-                setError('Не удалось удалить товар');
-                console.error(err);
-            }
-        }
-    };
-
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                setLoading(true);
                 const params = new URLSearchParams({
                     search: searchTerm,
                     sortBy,
                     order,
                 });
+                if (selectedCategory && selectedCategory !== 'all') {
+                    params.append('category', selectedCategory);
+                }
+
                 const response = await api.get(`/products?${params.toString()}`);
                 setProducts(response.data);
                 setError(null);
@@ -113,173 +68,131 @@ export default function ProductsPage() {
         }, 300);
 
         return () => clearTimeout(debounceFetch);
+    }, [searchTerm, sortBy, order, selectedCategory]);
 
-    }, [searchTerm, sortBy, order]);
+    const startEditing = (product: IProduct) => {
+        setEditingProduct(product);
+        setEditFormData({
+            title: product.title,
+            description: product.description,
+            category: product.category,
+            price: String(product.price),
+            commissionPercent: String(product.commissionPercent),
+            originalUrl: product.originalUrl
+        });
+    };
+
+    const cancelEditing = () => {
+        setEditingProduct(null);
+    };
+
+    const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+    };
+
+    const handleUpdate = async (productId: string) => {
+        try {
+            const updatedData = {
+                ...editFormData,
+                price: Number(editFormData.price),
+                commissionPercent: Number(editFormData.commissionPercent),
+            };
+            const { data: updatedProduct } = await api.put(`/products/${productId}`, updatedData);
+            
+            setProducts(currentProducts => currentProducts.map(p => 
+                p._id === productId ? updatedProduct : p
+            ));
+            
+            cancelEditing();
+        } catch (err) {
+            console.error('Не удалось обновить товар', err);
+        }
+    };
+
+    const handleDelete = async (productId: string) => {
+        if (window.confirm('Вы уверены?')) {
+            try {
+                await api.delete(`/products/${productId}`);
+                setProducts(currentProducts => currentProducts.filter(p => p._id !== productId));
+            } catch (err) {
+                console.error('Не удалось удалить товар', err);
+            }
+        }
+    };
     
-    if (loading) return <p className="text-center mt-10">Загрузка...</p>;
-    if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
-
     return (
         <main className="container mx-auto p-8">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Мои товары</h1>
                 <Link href="/products/add">
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
-                        + Добавить товар
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition flex items-center shadow-sm">
+                        <span className="mr-2">+</span> Добавить товар
                     </button>
                 </Link>
             </div>
 
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                {/* Блок фильтров, поиска и сортировки */}
-                <div className="flex justify-between items-center mb-4 p-4 bg-gray-50 rounded-lg">
-                    {/* Поиск */}
-                    <div className="w-1/3">
-                        <input
-                            type="text"
-                            placeholder="Поиск по названию..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-md"
-                        />
+            {/* Блок фильтров, поиска и сортировки */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 p-4 bg-white rounded-lg border shadow-sm">
+                <div className="md:col-span-1">
+                    <input
+                        type="text"
+                        placeholder="Поиск по названию..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md"
+                    />
+                </div>
+                <div className="md:col-span-2 flex items-center justify-end flex-wrap gap-4">
+                    <div>
+                        <label className="text-sm mr-2">Категория:</label>
+                        <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="px-3 py-2 border rounded-md bg-white">
+                            <option value="all">Все категории</option>
+                            {CATEGORIES.map(cat => (
+                                <option key={cat} value={cat} className="capitalize">{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                            ))}
+                        </select>
                     </div>
-                    
-                    {/* Сортировка */}
                     <div className="flex items-center space-x-2">
-                        <label className="text-sm">Сортировать по:</label>
-                        <select
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="px-3 py-2 border rounded-md bg-white"
-                        >
+                         <label className="text-sm">Сортировать:</label>
+                        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="px-3 py-2 border rounded-md bg-white">
                             <option value="createdAt">Дате</option>
                             <option value="price">Цене</option>
                             <option value="commissionPercent">Комиссии</option>
                             <option value="clicks">Кликам</option>
                         </select>
-                        <select
-                            value={order}
-                            onChange={(e) => setOrder(e.target.value)}
-                            className="px-3 py-2 border rounded-md bg-white"
-                        >
-                            <option value="desc">Убыванию</option>
-                            <option value="asc">Возрастанию</option>
+                        <select value={order} onChange={(e) => setOrder(e.target.value)} className="px-3 py-2 border rounded-md bg-white">
+                            <option value="desc">↓ По убыв.</option>
+                            <option value="asc">↑ По возр.</option>
                         </select>
                     </div>
                 </div>
-                
-
-                <table className="min-w-full leading-normal">
-                    <thead>
-                        <tr>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Название
-                            </th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Категория
-                            </th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Цена / Комиссия
-                            </th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Ссылка
-                            </th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Действия
-                            </th>
-                        </tr>
-                    </thead>
-                          
-                    <tbody>
-                        {products.map((product) => (
-                            <tr key={product._id}>
-                                {/* --- Ячейка Название --- */}
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    {editingProduct?._id === product._id ? (
-                                        <input type="text" name="title" value={editFormData.title} onChange={handleEditFormChange} className="w-full p-1 border rounded" />
-                                    ) : (
-                                        <p className="text-gray-900 whitespace-no-wrap">{product.title}</p>
-                                    )}
-                                </td>
-                                {/* --- Ячейка Категория --- */}
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    {editingProduct?._id === product._id ? (
-                                        <>  
-                                            <select name="category" value={editFormData.category} onChange={handleEditFormChange} className="w-full p-1 border rounded mb-1">
-                                                <option value="спортпит">Спортпит</option>
-                                                <option value="оборудование">Оборудование</option>
-                                                <option value="одежда">Одежда</option>
-                                                <option value="гаджеты">Гаджеты</option>
-                                            </select>
-
-    
-                                            <input type="url" name="originalUrl" value={editFormData.originalUrl} onChange={handleEditFormChange} className="w-full p-1 border rounded" placeholder="URL товара"/>
-                                        </>
-                                    ) : (
-                                        <p className="text-gray-900 whitespace-no-wrap">{product.category}</p>
-                                    )}
-                                </td>
-                                {/* --- Ячейка Цена / Комиссия --- */}
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    {editingProduct?._id === product._id ? (
-                                        <>
-                                            <input type="number" name="price" value={editFormData.price} onChange={handleEditFormChange} className="w-full p-1 border rounded mb-1" placeholder="Цена" />
-                                            <input type="number" name="commissionPercent" value={editFormData.commissionPercent} onChange={handleEditFormChange} className="w-full p-1 border rounded" placeholder="%"/>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <p className="text-gray-900 whitespace-no-wrap">{product.price} руб.</p>
-                                            <p className="text-gray-600 whitespace-no-wrap">{product.commissionPercent}%</p>
-                                        </>
-                                    )}
-                                </td>
-                                {/* --- Ячейка Ссылка --- */}
-                               <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    <div className="flex flex-col">
-                                        {/* Наша реферальная ссылка */}
-                                        <a 
-                                            href={`http://localhost:5000/ref/${product.referralCode}`} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer" 
-                                            className="text-blue-600 hover:text-blue-800 font-semibold"
-                                            title={`Реферальная ссылка. Ведет на: ${product.originalUrl}`}
-                                        >
-                                            /ref/{product.referralCode}
-                                        </a>
-                                        {/* Оригинальная ссылка, куда ведет редирект */}
-                                        <a 
-                                            href={product.originalUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-xs text-gray-500 hover:underline truncate"
-                                            title={product.originalUrl}
-                                        >
-                                            {/* Обрезаем длинную ссылку для красоты */}
-                                            {product.originalUrl.length > 30 ? `${product.originalUrl.substring(0, 30)}...` : product.originalUrl}
-                                        </a>
-                                    </div>
-                                </td>
-                                {/* --- Ячейка Действия --- */}
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    {editingProduct?._id === product._id ? (
-                                        <>
-                                            <button onClick={() => handleUpdate(product._id)} className="text-green-500 hover:text-green-700 mr-2">Сохранить</button>
-                                            <button onClick={cancelEditing} className="text-gray-500 hover:text-gray-700">Отмена</button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <button onClick={() => startEditing(product)} className="text-yellow-500 hover:text-yellow-700 mr-2">Редакт.</button>
-                                            <button onClick={() => handleDelete(product._id)} className="text-red-500 hover:text-red-700">Удалить</button>
-                                        </>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-
-    
-                </table>
             </div>
+
+            {loading && <p className="text-center mt-10">Загрузка товаров...</p>}
+            {error && <p className="text-center mt-10 text-red-500">{error}</p>}
+
+            {!loading && !error && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {products.length > 0 ? products.map((product) => (
+                        <ProductCard
+                            key={product._id}
+                            product={product}
+                            isEditing={editingProduct?._id === product._id}
+                            editFormData={editFormData}
+                            onStartEdit={startEditing}
+                            onCancelEdit={cancelEditing}
+                            onDelete={handleDelete}
+                            onUpdate={handleUpdate}
+                            onFormChange={handleEditFormChange}
+                        />
+                    )) : (
+                        <div className="col-span-full text-center py-16 text-gray-500 bg-white rounded-lg shadow-sm border">
+                            <p className="font-semibold text-lg">Товары не найдены</p>
+                            <p className="mt-2">Попробуйте изменить фильтры или добавить новый товар.</p>
+                        </div>
+                    )}
+                </div>
+            )}
         </main>
     );
 }

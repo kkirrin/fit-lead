@@ -6,18 +6,22 @@ import Product from '../../models/Products';
 // @route   GET /api/products
 export const getProducts = async (req: Request, res: Response) => {
     try {
+        // Достаем category из query-параметров
         const { category, search, sortBy, order } = req.query;
 
         // --- ФИЛЬТРАЦИЯ ---
         const filter: any = {};
-        if (category) {
+        
+        // Добавляем фильтр по категории, если он есть и это не "все"
+        if (category && category !== 'all') {
             filter.category = category;
         }
+
         if (search) {
             filter.title = { $regex: search, $options: 'i' };
         }
 
-        // --- СОРТИРОВКА ---
+        // --- СОРТИРОВКА (без изменений) ---
         const sortOptions: any = {};
         if (sortBy) {
             sortOptions[sortBy as string] = order === 'desc' ? -1 : 1;
@@ -25,6 +29,7 @@ export const getProducts = async (req: Request, res: Response) => {
             sortOptions.createdAt = -1;
         }
 
+        // Применяем и фильтрацию, и сортировку
         const products = await Product.find(filter).sort(sortOptions);
         res.json(products);
 
@@ -32,8 +37,6 @@ export const getProducts = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
-
-
 
 // @desc    Создать товар
 // @route   POST /api/products
