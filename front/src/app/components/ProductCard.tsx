@@ -16,10 +16,19 @@ interface IProduct {
 }
 
 
+interface EditFormData {
+    title: string;
+    description: string;
+    category: string;
+    originalUrl: string;
+    price: string;
+    commissionPercent: string;
+}
+
 interface ProductCardProps {
     product: IProduct;
     isEditing: boolean;
-    editFormData: any; 
+    editFormData?: EditFormData; 
     onStartEdit: (product: IProduct) => void;
     onCancelEdit: () => void;
     onDelete: (id: string) => void;
@@ -43,17 +52,25 @@ export default function ProductCard({
 }: ProductCardProps) {
     
     if (isEditing) {
+        const form: EditFormData = editFormData ?? {
+            title: product.title,
+            description: product.description,
+            category: product.category,
+            originalUrl: product.originalUrl,
+            price: String(product.price),
+            commissionPercent: String(product.commissionPercent),
+        };
         return (
             <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4 shadow-lg flex flex-col space-y-3 transition-all duration-300 ring-4 ring-yellow-200 ring-opacity-50">
-                <input type="text" name="title" value={editFormData.title} onChange={onFormChange} className="w-full p-2 border rounded font-bold text-lg" placeholder="Название товара"/>
-                <textarea name="description" value={editFormData.description} onChange={onFormChange} className="w-full p-2 border rounded text-sm h-24" placeholder="Описание"/>
-                <select name="category" value={editFormData.category} onChange={onFormChange} className="w-full p-2 border rounded text-sm bg-white">
+                <input type="text" name="title" value={form.title} onChange={onFormChange} className="w-full p-2 border rounded font-bold text-lg" placeholder="Название товара"/>
+                <textarea name="description" value={form.description} onChange={onFormChange} className="w-full p-2 border rounded text-sm h-24" placeholder="Описание"/>
+                <select name="category" value={form.category} onChange={onFormChange} className="w-full p-2 border rounded text-sm bg-white">
                     {CATEGORIES.map(cat => (<option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>))}
                 </select>
-                <input type="url" name="originalUrl" value={editFormData.originalUrl} onChange={onFormChange} className="w-full p-2 border rounded text-sm" placeholder="URL товара"/>
+                <input type="url" name="originalUrl" value={form.originalUrl} onChange={onFormChange} className="w-full p-2 border rounded text-sm" placeholder="URL товара"/>
                 <div className="flex space-x-2">
-                    <input type="number" name="price" value={editFormData.price} onChange={onFormChange} className="w-1/2 p-2 border rounded" placeholder="Цена"/>
-                    <input type="number" name="commissionPercent" value={editFormData.commissionPercent} onChange={onFormChange} className="w-1/2 p-2 border rounded" placeholder="% комиссии"/>
+                    <input type="number" name="price" value={form.price} onChange={onFormChange} className="w-1/2 p-2 border rounded" placeholder="Цена"/>
+                    <input type="number" name="commissionPercent" value={form.commissionPercent} onChange={onFormChange} className="w-1/2 p-2 border rounded" placeholder="% комиссии"/>
                 </div>
                 <div className="flex justify-end space-x-2 pt-2">
                     <button onClick={() => onUpdate(product._id)} className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600 shadow-sm" title="Сохранить"><Save size={18} /></button>

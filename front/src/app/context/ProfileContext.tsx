@@ -37,7 +37,7 @@ export default function ProfileProvider({ children }: { children: React.ReactNod
         if (isMounted) {
           setProfile(data);
         }
-      } catch (error) {
+      } catch {
         // no-op: Sidebar/consumers can handle empty profile
         if (isMounted) {
           setProfile(null);

@@ -19,7 +19,7 @@ FitLead — fullstack-приложение для фитнес-блогеров:
 - Node.js 18+
 - Docker (для локальной MongoDB)
 
-### Быстрый старт (одной командой)
+### Запуск (dev, по частям)
 1) Запустите MongoDB:
 
 ```bash
@@ -38,25 +38,44 @@ cd back && npm install && cd ../front && npm install && cd ..
 cd back && npm run data:import && cd ..
 ```
 
-4) Запустите приложение (поднимет API и фронт одновременно):
+4) Запустите по частям (в двух терминалах):
 
+Backend
 ```bash
-npm run start
+cd back
+npm run dev
 ```
 
-После этого:
+Frontend
+```bash
+cd front
+npm start
+```
+
+После запуска:
 - API: `http://localhost:5000`
 - Front: `http://localhost:3000`
 
-### Ручной запуск по частям (если нужно)
-- Backend: `cd back && npm run dev`
-- Frontend: `cd front && npm run dev`
-
 ### Переменные окружения
-- `back`: `.env` (в корне репозитория) с `MONGO_URI` и опционально `FRONTEND_ORIGINS`
-- `front`: `.env.local` с `NEXT_PUBLIC_API_URL` (по умолчанию `http://localhost:5000/api`)
+
+1) Создайте файл `.env` в КОРНЕ репозитория (рядом с папками `back` и `front`). Бэкенд читает именно корневой `.env`.
+
+Минимальный пример содержимого:
+
+```env
+MONGO_URI=mongodb://localhost:27017/fit-lead
+# Необязательно: список разрешённых фронтенд-источников для CORS (через запятую)
+FRONTEND_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+```
+
+2) (Опционально) Создайте `front/.env.local`, если нужен другой адрес API:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+```
 
 ### Остановка
+
 ```bash
 docker stop db-fit-lead && docker rm db-fit-lead
 ```
