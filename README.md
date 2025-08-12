@@ -29,9 +29,9 @@ Frontend
 
     Axios: Для удобного и надежного взаимодействия с Backend API.
 
-    Chart.js: Для наглядной визуализации статистики в виде графиков.
+    Chart.js & react-chartjs-2: Для наглядной визуализации статистики в виде графиков.
 
-    Lucide React: Для легковесных и красивых иконок.
+    Lucide React: Для легковесных и красивых иконок в интерфейсе.
 
 Backend
 
@@ -41,9 +41,7 @@ Backend
 
     MongoDB & Mongoose: Гибкая NoSQL база данных для хранения информации о товарах, пользователях и кликах.
 
-    JWT & bcryptjs: Для будущей реализации аутентификации.
-
-    Nanoid: Для генерации уникальных реферальных кодов.
+    Nanoid: Для генерации уникальных и коротких реферальных кодов.
 
 База данных
 
@@ -60,14 +58,22 @@ Backend
 1. Подготовка
 
 Клонирование репозитория:
+code Bash
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
 
       
 git clone https://github.com/kkirrin/fit-lead.git
 cd fit-lead
 
+    
 
 Настройка переменных окружения:
 Создайте файл .env в корне проекта, скопировав содержимое из файла-шаблона .env.example:
+code Bash
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+
       
 cp .env.example .env
 
@@ -77,26 +83,43 @@ cp .env.example .env
 2. Запуск Базы Данных (MongoDB)
 
 Запустите контейнер MongoDB с помощью Docker:
+code Bash
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+
       
-docker run -d -p 27017:27017 --name fit-lead-mongo
+docker run -d -p 27017:27017 --name db-fit-lead mongo
 
+    
 
-Чтобы убедиться, что контейнер запустился, выполните docker ps. Вы должны увидеть db-fit-leadв списке.
+Чтобы убедиться, что контейнер запустился, выполните docker ps. Вы должны увидеть db-fit-lead в списке.
 3. Настройка Backend
 
 Откройте первый терминал в корне проекта.
 
 Установка зависимостей и наполнение базы:
+code Bash
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+
       
 cd backend
 npm install
 npm run data:import
 
+    
+
 Вы должны увидеть сообщение Data Imported!, подтверждающее, что база наполнилась тестовыми данными.
 
-Запуск Backend сервера:    
+Запуск Backend сервера:
+code Bash
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+
+      
 npm run dev
 
+    
 
 Сервер API запустится на http://localhost:5000.
 4. Настройка Frontend
@@ -104,6 +127,10 @@ npm run dev
 Откройте второй, отдельный терминал в корне проекта.
 
 Установка зависимостей и запуск:
+code Bash
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+
       
 cd frontend
 npm install
@@ -111,7 +138,7 @@ npm run dev
 
     
 
-(Примечание: в ТЗ указано npm start, что обычно используется для production-сборки. Для разработки в Next.js используется npm run dev.)
+(Примечание: в ТЗ было указано npm start, что обычно используется для production-сборки. Для разработки в Next.js стандартной командой является npm run dev.)
 
 Клиентское приложение запустится на http://localhost:3000.
 ✅ Готово!
@@ -123,8 +150,12 @@ npm run dev
 
     Чтобы остановить и удалить контейнер с базой данных, выполните:
 
+code Bash
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
 
-docker stop fit-lead-mongo
-docker rm fit-lead-mongo
+      
+docker stop db-fit-lead
+docker rm db-fit-lead
 
     
