@@ -9,18 +9,13 @@ import referralRoutes from './api/routes/referralRoutes';
 
 dotenv.config({ path: '../.env' }); 
 
-// Загрузка переменных окружения
-
-// Подключение к БД
 connectDB();
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json()); 
 
-// Тестовый роут для проверки "здоровья" API
 app.use('/api/products', productRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/users', userRoutes);

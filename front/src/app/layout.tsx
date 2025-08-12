@@ -20,13 +20,10 @@ export default function RootLayout({
     <html lang="ru">
       <body className={inter.className}>
         <div className="flex h-screen bg-gray-50">
-          {/* Боковая панель */}
           <Sidebar />
           
-          {/* Основной контент */}
           <div className="flex-1 flex flex-col overflow-hidden">
             <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
-                {/* children - это то место, куда Next.js будет рендерить наши страницы */}
                 {children}
             </main>
           </div>

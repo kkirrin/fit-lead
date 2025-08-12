@@ -13,4 +13,5 @@ const ClickSchema: Schema = new Schema({
 });
 
 const Click = mongoose.model<IClick>('Click', ClickSchema);
+
 export default Click;

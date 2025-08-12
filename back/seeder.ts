@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { products } from './src/data/products';
 import Product from './src/models/Products';
@@ -11,12 +10,10 @@ connectDB();
 
 const importData = async () => {
     try {
-        // Очищаем коллекцию перед импортом
         await Product.deleteMany();
 
         await User.deleteMany(); 
 
-        // Создаем одного пользователя
         await User.create({
             name: 'Фитнес-Блогер',
             email: 'pro_blogger@fit.com',
@@ -45,8 +42,6 @@ const destroyData = async () => {
     }
 };
 
-// process.argv - это массив аргументов командной строки
-// process.argv[2] будет '-d', если мы запустим скрипт с этим флагом
 if (process.argv[2] === '-d') {
     destroyData();
 } else {

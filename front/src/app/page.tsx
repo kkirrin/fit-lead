@@ -1,11 +1,9 @@
-// frontend/src/app/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import Link from 'next/link';
 
-// Определяем интерфейсы для наших данных
 interface IStats {
     totalProducts: number;
     totalClicks: number;
@@ -29,14 +27,12 @@ export default function DashboardPage() {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                // Запрашиваем статистику и товары одновременно
                 const [statsResponse, productsResponse] = await Promise.all([
                     api.get('/stats'),
                     api.get('/products')
                 ]);
 
                 setStats(statsResponse.data);
-                // Берем 5 последних товаров для отображения на дашборде
                 setRecentProducts(productsResponse.data.slice(0, 5));
                 
                 setError(null);

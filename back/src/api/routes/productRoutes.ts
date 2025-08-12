@@ -1,4 +1,3 @@
-// backend/src/api/routes/productRoutes.ts
 import express from 'express';
 import {
     getProducts,

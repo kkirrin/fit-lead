@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import TopProductsChart from '@/app/components/TopProductsChart'; // Импортируем только нужный график
+import TopProductsChart from '@/app/components/TopProductsChart'; 
 
-// Интерфейс теперь можно упростить, убрав clicksByDay
 interface IStats {
     totalProducts: number;
     totalClicks: number;

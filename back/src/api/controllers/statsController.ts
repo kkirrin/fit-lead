@@ -1,4 +1,3 @@
-// backend/src/api/controllers/statsController.ts
 import { Request, Response } from 'express';
 import Product from '../../models/Products';
 import Click from '../../models/Click';
@@ -10,7 +9,6 @@ export const handleReferralClick = async (req: Request, res: Response) => {
         const product = await Product.findOne({ referralCode: req.params.referralCode });
 
         if (!product) {
-            // Если товар не найден, можно редиректить на главную страницу блогера или 404
             return res.status(404).send('Ссылка недействительна');
         }
 
@@ -43,7 +41,6 @@ export const getStats = async (req: Request, res: Response) => {
             .select('title clicks'); 
 
         
-        // Используем Aggregation Pipeline для расчета потенциального дохода
         const potentialIncomeData = await Product.aggregate([
             {
                 $project: {

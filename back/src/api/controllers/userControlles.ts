@@ -1,9 +1,6 @@
 import { Request, Response } from 'express';
 import User from '../../models/User';
 
-// ID нашего "залогиненного" пользователя-заглушки
-// В реальном приложении этот ID будет браться из JWT токена
-const MOCK_USER_ID = "663a5a8a0f9b1b1b1b1b1b1b"; // Замените на реальный ID после первого сидинга
 
 // @desc    Получить профиль пользователя
 // @route   GET /api/users/profile
@@ -24,7 +21,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
 // @route   PUT /api/users/profile
 export const updateUserProfile = async (req: Request, res: Response) => {
     try {
-        const user = await User.findOne(); // Находим нашего единственного пользователя
+        const user = await User.findOne();
         
         if (user) {
             user.name = req.body.name || user.name;

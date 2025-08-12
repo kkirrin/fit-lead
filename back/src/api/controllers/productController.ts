@@ -40,15 +40,12 @@ export const getProducts = async (req: Request, res: Response) => {
 
 export const createProduct = async (req: Request, res: Response) => {
     try {
-        // 1. Добавляем originalUrl в деструктуризацию
         const { title, description, category, price, commissionPercent, originalUrl } = req.body;
 
-        // 2. Добавляем простую серверную валидацию
         if (!title || !description || !category || !price || !commissionPercent || !originalUrl) {
             return res.status(400).json({ message: 'Пожалуйста, заполните все обязательные поля' });
         }
 
-        // 3. Передаем originalUrl в новый объект Product
         const product = new Product({
             title,
             description,
@@ -62,7 +59,6 @@ export const createProduct = async (req: Request, res: Response) => {
         res.status(201).json(createdProduct);
         
     } catch (error: any) {
-        // 4. Добавляем осмысленную обработку ошибок
         console.error('Ошибка при создании товара:', error);
         res.status(500).json({ message: 'Ошибка сервера при создании товара', error: error.message });
     }
@@ -83,7 +79,7 @@ export const updateProduct = async (req: Request, res: Response) => {
             product.category = category || product.category;
             product.price = price || product.price;
             product.commissionPercent = commissionPercent || product.commissionPercent;
-            product.originalUrl = originalUrl || product.originalUrl; // <--- ДОБАВЛЯЕМ ЭТУ СТРОКУ
+            product.originalUrl = originalUrl || product.originalUrl;
 
             const updatedProduct = await product.save();
             res.json(updatedProduct);

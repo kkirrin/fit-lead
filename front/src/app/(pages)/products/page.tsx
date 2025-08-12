@@ -39,7 +39,7 @@ export default function ProductsPage() {
             category: product.category,
             price: String(product.price),
             commissionPercent: String(product.commissionPercent),
-            originalUrl: product.originalUrl // <--- ДОБАВИТЬ
+            originalUrl: product.originalUrl
         });
     };
 
@@ -92,7 +92,6 @@ export default function ProductsPage() {
         const fetchProducts = async () => {
             try {
                 setLoading(true);
-                // Создаем параметры запроса
                 const params = new URLSearchParams({
                     search: searchTerm,
                     sortBy,
@@ -115,7 +114,7 @@ export default function ProductsPage() {
 
         return () => clearTimeout(debounceFetch);
 
-    }, [searchTerm, sortBy, order]); // Перезапускаем эффект при изменении этих состояний
+    }, [searchTerm, sortBy, order]);
     
     if (loading) return <p className="text-center mt-10">Загрузка...</p>;
     if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;

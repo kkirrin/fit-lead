@@ -30,7 +30,7 @@ export default function AddProductPage() {
                 commissionPercent: Number(commissionPercent),
                 originalUrl
             });
-            router.push('/products'); // Перенаправляем на список после успеха
+            router.push('/products'); 
         } catch (err) {
             setError('Не удалось создать товар. Проверьте данные.');
             console.error(err);

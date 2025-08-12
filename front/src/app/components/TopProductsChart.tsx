@@ -11,7 +11,6 @@ import {
   Legend,
 } from 'chart.js';
 
-// Регистрируем компоненты для столбчатой диаграммы
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -43,7 +42,7 @@ export default function TopProductsChart({ chartData }: TopProductsChartProps) {
     };
 
     const options = {
-        indexAxis: 'y' as const, // <-- Делаем диаграмму горизонтальной, так лучше читаются названия
+        indexAxis: 'y' as const, 
         responsive: true,
         plugins: {
             legend: {
