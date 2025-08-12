@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/app/components/Sidebar"; // Импортируем наш новый сайдбар
+import ProfileProvider from "@/app/context/ProfileContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,15 +20,16 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={inter.className}>
-        <div className="flex h-screen bg-gray-50">
-          <Sidebar />
-          
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+        <ProfileProvider>
+          <div className="flex h-screen bg-gray-50">
+            <Sidebar />
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
                 {children}
-            </main>
+              </main>
+            </div>
           </div>
-        </div>
+        </ProfileProvider>
       </body>
     </html>
   );

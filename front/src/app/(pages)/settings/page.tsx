@@ -3,6 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import Image from 'next/image';
 import api from '@/lib/api';
+import { useProfileContext } from '@/app/context/ProfileContext';
 
 interface IUserProfile {
     name: string;
@@ -11,28 +12,57 @@ interface IUserProfile {
 }
 
 export default function SettingsPage() {
+    const { profile: ctxProfile, setProfile: setCtxProfile } = useProfileContext();
     const [profile, setProfile] = useState<IUserProfile>({ name: '', email: '', avatar: '' });
+    const [avatarSize, setAvatarSize] = useState<string>('100');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const { data } = await api.get('/users/profile');
-                setProfile(data);
-            } catch (error) {
-                console.error('Failed to fetch profile', error);
-                setMessage('Ошибка загрузки профиля');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchProfile();
-    }, []);
+        // Инициализируем локальное состояние из контекста, когда он загрузится
+        if (ctxProfile) {
+            setProfile(ctxProfile);
+            // Пытаемся извлечь размер из текущего avatar URL
+            const match = (ctxProfile.avatar || '').match(/i\.pravatar\.cc\/(\d+)/);
+            setAvatarSize(match?.[1] ?? '100');
+            setLoading(false);
+        } else {
+            // если контекст пуст, пробуем загрузить напрямую (fallback)
+            const fetchProfile = async () => {
+                try {
+                    const { data } = await api.get('/users/profile');
+                    setProfile(data);
+                    const match = (data.avatar || '').match(/i\.pravatar\.cc\/(\d+)/);
+                    setAvatarSize(match?.[1] ?? '100');
+                } catch (error) {
+                    console.error('Failed to fetch profile', error);
+                    setMessage('Ошибка загрузки профиля');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchProfile();
+        }
+    }, [ctxProfile]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setProfile({ ...profile, [e.target.name]: e.target.value });
+    };
+
+    const handleAvatarSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const raw = e.target.value;
+        // Оставляем только цифры
+        const digitsOnly = raw.replace(/\D+/g, '');
+        // Ограничим разумный диапазон 40..512
+        let normalized = digitsOnly;
+        if (digitsOnly.length > 0) {
+            const num = Math.max(40, Math.min(512, parseInt(digitsOnly, 10)));
+            normalized = String(num);
+        }
+        setAvatarSize(normalized);
+        const size = normalized || '100';
+        setProfile(prev => ({ ...prev, avatar: `https://i.pravatar.cc/${size}` }));
     };
 
     const handleSubmit = async (e: FormEvent) => {
@@ -40,8 +70,13 @@ export default function SettingsPage() {
         setSaving(true);
         setMessage('');
         try {
-            await api.put('/users/profile', profile);
+            // Гарантируем корректный avatar перед отправкой
+            const size = avatarSize || '100';
+            const payload = { ...profile, avatar: `https://i.pravatar.cc/${size}` };
+            await api.put('/users/profile', payload);
             setMessage('Профиль успешно обновлен!');
+            // Обновляем контекст, чтобы Sidebar сразу отобразил изменения
+            setCtxProfile(payload);
             // Скрываем сообщение через 3 секунды
             setTimeout(() => setMessage(''), 3000);
         } catch (error) {
@@ -60,18 +95,21 @@ export default function SettingsPage() {
 
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-6">
                 <div className="flex items-center space-x-4">
-                    <Image width={50} height={50} src={profile.avatar || 'https://i.pravatar.cc/100'} alt="Avatar" className="w-24 h-24 rounded-full object-cover" />
+                    <Image width={96} height={96} src={profile.avatar || `https://i.pravatar.cc/${avatarSize || '100'}`} alt="Avatar" className="w-24 h-24 rounded-full object-cover" />
                     <div className="flex-1">
-                        <label htmlFor="avatar" className="block text-sm font-medium text-gray-700">URL аватара</label>
+                        <label htmlFor="avatarSize" className="block text-sm font-medium text-gray-700">Размер аватара (только цифры, 40–512)</label>
                         <input
-                            type="url"
-                            id="avatar"
-                            name="avatar"
-                            value={profile.avatar}
-                            onChange={handleChange}
-                            readOnly
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            id="avatarSize"
+                            name="avatarSize"
+                            value={avatarSize}
+                            onChange={handleAvatarSizeChange}
+                            placeholder="100"
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
+                        <p className="text-xs text-gray-500 mt-1">Итоговая ссылка: https://i.pravatar.cc/{avatarSize || '100'}</p>
                     </div>
                 </div>
 

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Package, BarChart3, Settings } from 'lucide-react';
 import Image from 'next/image';
+import { useProfileContext } from '@/app/context/ProfileContext';
 
 const navLinks = [
     { name: 'Дашборд', href: '/', icon: LayoutDashboard },
@@ -14,6 +15,7 @@ const navLinks = [
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const { profile } = useProfileContext();
 
     return (
         <aside className="w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
@@ -49,15 +51,15 @@ export default function Sidebar() {
             <div className="p-4 border-t border-gray-200">
                 <div className="flex items-center">
                     <Image
-                        src="https://i.pravatar.cc/40" // Заглушка для аватара
+                        src={(profile?.avatar && profile.avatar.length > 0) ? profile.avatar : 'https://i.pravatar.cc/40'}
                         alt="User avatar"
-                        className="w-10 h-10 rounded-full"
+                        className="w-10 h-10 rounded-full object-cover"
                         width={50}
                         height={50}
                     />
                     <div className="ml-3">
-                        <p className="font-semibold text-sm">Фитнес-Блогер</p>
-                        <p className="text-xs text-gray-500">pro_blogger@fit.com</p>
+                        <p className="font-semibold text-sm">{profile?.name ?? 'Гость'}</p>
+                        <p className="text-xs text-gray-500">{profile?.email ?? ''}</p>
                     </div>
                 </div>
             </div>
