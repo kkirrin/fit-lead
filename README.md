@@ -104,6 +104,7 @@ IGNORE_WHEN_COPYING_END
 
       
 cd backend
+
 npm install
 npm run data:import
 
@@ -112,9 +113,6 @@ npm run data:import
 Вы должны увидеть сообщение Data Imported!, подтверждающее, что база наполнилась тестовыми данными.
 
 Запуск Backend сервера:
-code Bash
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
 
       
 npm run dev
